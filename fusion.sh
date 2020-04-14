@@ -19,7 +19,7 @@ ddf=0
 var1=`cut -d I -f 4 test | tr -d ' ' | sed -n "$ln" | tr ',' '.'`
 var2=`cut -d I -f 5 test | tr -d ' ' | sed -n "$ln" | tr ',' '.'`
 
-if [ "$var1" = "$var2" ];then
+if [ "$var1" == "$var2" ];then
 	cut -d "I" -f "2,3" test | sed -n "$ln" | tr -d "\n"
 	echo -e "\e[32m $var1 | $var2 \e[0m" 
 else	
@@ -32,21 +32,50 @@ fi
 let i=i+1
 done
 
-if [ "$(date +"%s" -r test)" -le "$(date +"%s")" ];
-then 
-    pwd
+
+dsh=`ls -ltr test|tr -s " " | cut -d " " -f "8" | cut -d ":" -f "1"`
+dfw=`ls -ltr test|tr -s " " | cut -d " " -f "7"`
+echo $dfw
+
+
+# verification du temps d'exécution de script
+H=$(date +%H)
+D=$(date +%d/%m/%y)
+
+echo $D
+
+if (( 15 <= 10#$H && 10#$H <= 23 )); then
+# verification du temps d'écriture de fichier
+	echo SHIFT Apres Midi
+	
+	if (( 15 <= $dsh && $dsh <= 23 )) && ((10#$H == $dfw)) ; then
+		echo "yes"
+	else
+		echo "non"
+	fi
+
+
+elif (( 00 <= 10#$H && 10#$H < 07 )); then
+
+	echo SHIFT Nuit
+
+else
+        
+	echo Shift Matin
+
+	if (( 07 <= $dsh && $dsh < 15 )) && ((10#$D == "14/04/2020")) ; then
+               echo "yes"
+
+	       j=`date +"%Y/%m/%d"`
+	        j=$(($j - 1))
+		 echo $j
+
+
+        else
+               echo "non"
+        fi
+
+
 fi
 
-dsh=`ls -ltr test|tr -s " " |cut -d " " -f "8"`
-timenow=$date +"%H:%M:%S" 2>/dev/null
-shmbeg=$date -d '15:00:00' 2>/dev/null
-shmend=$date -d '23:59:59' 2>/dev/null
 
-echo $timenow
-
-
-if [ $timenow -gt $shmbeg ] && [ $timenow -lt $shmend ] ;
-then
-    echo "shit apt midi"
-    echo $dsh
-fi
